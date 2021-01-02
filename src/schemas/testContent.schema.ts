@@ -10,7 +10,7 @@ export class TestContent {
     TestId: number;
 
     @Prop()
-    userMessages: UserMessage[]
+    UserMessages: UserMessage[]
 }
 
 export const TestContentSchema = SchemaFactory.createForClass(TestContent);

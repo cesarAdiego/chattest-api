@@ -7,7 +7,7 @@ export type UserMessageDocument = UserMessage & Document;
 Schema()
 export class UserMessage extends Message {
     @Prop()
-    botAnswers: Message[];
+    BotAnswers: Message[];
 }
 
 export const UserMessageSchema = SchemaFactory.createForClass(UserMessage);

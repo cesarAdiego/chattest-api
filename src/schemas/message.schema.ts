@@ -6,9 +6,7 @@ export type MessageDocument = Message & Document;
 @Schema()
 export class Message {
     @Prop()
-    content: string;
-
-    
+    Content: string;
 }
 
 export const MessageSchema = SchemaFactory.createForClass(Message);
