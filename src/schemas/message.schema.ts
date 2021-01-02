@@ -6,6 +6,8 @@ export type MessageDocument = Message & Document;
 @Schema()
 export class Message {
     @Prop()
+    _id: string;
+    @Prop()
     Content: string;
 }
 

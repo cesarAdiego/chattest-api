@@ -1,6 +1,9 @@
 import { WebchatClient } from "@cognigy/webchat-client";
+import { reverse } from "dns";
+import { Message } from "src/schemas/message.schema";
 import { TestContent } from "src/schemas/testContent.schema";
 import { UserMessage } from "src/schemas/userMessage.schema";
+import { TestExecutionResult } from "../entities/testExecutionResult";
 
 export class CognigyWrapper {
     botUrl: string;
@@ -15,33 +18,32 @@ export class CognigyWrapper {
         });
     }
 
-    async executeTest(): Promise<boolean> {
+    async executeTest(): Promise<TestExecutionResult> {
         await this.connect();
-        let receivedMessages: string[] = [];
+        let allExpectedAnswers = this.testContent.UserMessages.map(message => message.BotAnswers);
+        let expectedAnswers: Message[] = [].concat(...allExpectedAnswers);
+        let botAnswers = await this.SendAndReceiveMessages(this.testContent.UserMessages); 
 
-        await this.testContent.UserMessages.forEach(async userMessage => {
-            receivedMessages.concat(await this.SendAndReceiveMessages(userMessage));
-        });
+        let testExecution = new TestExecutionResult(expectedAnswers, botAnswers); 
 
-        console.log(receivedMessages);
-
-        return true;
+        return testExecution;
     }
 
     async connect() {
         await this.client.connect();
     }
 
-    SendAndReceiveMessages(userMessage: UserMessage): Promise<string[]>{
+    SendAndReceiveMessages(userMessages: UserMessage[]): Promise<string[]>{
         return new Promise<string[]>((resolve, reject) => {
+            let botAnswersCount = userMessages.map(message => message.BotAnswers.length)
+                                             .reduce((a, b) => a + b, 0);
             let receivedMessages: string[] = [];
-            this.client.sendMessage(userMessage.Content);
+
+            userMessages.forEach(message => this.client.sendMessage(message.Content));
 
             this.client.on('output', output => {
-                // console.log(output);
                 receivedMessages.push(output.text);
-
-                if(receivedMessages.length == userMessage.BotAnswers.length) {
+                if(receivedMessages.length == botAnswersCount) {
                     resolve(receivedMessages);
                 }
             });
