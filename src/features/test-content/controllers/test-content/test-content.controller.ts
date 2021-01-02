@@ -1,4 +1,6 @@
-import { Controller, Get, Param } from '@nestjs/common';
+import { Body, Controller, Get, Post, Param, HttpService } from '@nestjs/common';
+import { ProjectConfiguration } from 'src/common/entities/projectConfiguration';
+import { Test } from 'src/common/entities/test';
 import { TestExecutionService } from 'src/common/services/test-execution/test-execution.service';
 import { TestContent } from 'src/schemas/testContent.schema';
 import { TestContentService } from '../../../../common/services/test-content.service';
@@ -6,7 +8,8 @@ import { TestContentService } from '../../../../common/services/test-content.ser
 @Controller('test-content')
 export class TestContentController {
     constructor(private testContentService: TestContentService,
-                private testExecutionService: TestExecutionService) {}
+                private testExecutionService: TestExecutionService,
+                private http: HttpService) {}
 
     @Get()
     async getAll(): Promise<TestContent[]> {
@@ -21,10 +24,13 @@ export class TestContentController {
         return testContent;
     }
 
-    @Get('execute/:id')
-    async executeById(@Param('id') testId: number): Promise<boolean> {
-        let testContent = await this.testContentService.getByTestId(testId);
+    @Post('execute')
+    async executeById(@Body() test: Test): Promise<boolean> {
+        process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
+        let configurationResponse = await this.http.get<ProjectConfiguration>(`https://localhost:44344/api/Projects/${test.projectId}/configuration`).toPromise();
+        let configuration = configurationResponse.data;
+        let testContent = await this.testContentService.getByTestId(test.id);
 
-        return await this.testExecutionService.executeTest(testContent);
+        return await this.testExecutionService.executeTest(testContent, configuration);
     }
 }
