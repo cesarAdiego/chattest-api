@@ -1,4 +1,5 @@
 import { WebchatClient } from "@cognigy/webchat-client";
+import { exception } from "console";
 import { reverse } from "dns";
 import { Message } from "src/schemas/message.schema";
 import { TestContent } from "src/schemas/testContent.schema";
@@ -22,11 +23,13 @@ export class CognigyWrapper {
         await this.connect();
         let allExpectedAnswers = this.testContent.UserMessages.map(message => message.BotAnswers);
         let expectedAnswers: Message[] = [].concat(...allExpectedAnswers);
-        let botAnswers = await this.SendAndReceiveMessages(this.testContent.UserMessages); 
-
-        let testExecution = new TestExecutionResult(expectedAnswers, botAnswers); 
-
-        return testExecution;
+        let testExecution: TestExecutionResult;
+        
+        return await this.SendAndReceiveMessages(this.testContent.UserMessages).then(onCompleteRes => {
+                return new TestExecutionResult(expectedAnswers, onCompleteRes);
+            }, onError => {
+                return new TestExecutionResult([], [], true);
+            });
     }
 
     async connect() {
@@ -47,6 +50,10 @@ export class CognigyWrapper {
                     resolve(receivedMessages);
                 }
             });
+
+            setTimeout(_ => {
+                reject();
+            }, 10000 * userMessages.length);
         });
     }
 }
