@@ -4,7 +4,7 @@ export class BotAnswerExecutionResult {
     public expectedBotAnswer: Message;
     public botAnswer: string;
 
-    get areEqual(): boolean {
+    public get areEqual(): boolean {
         return this.expectedBotAnswer.Content == this.botAnswer;
     }
 

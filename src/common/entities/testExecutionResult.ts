@@ -2,9 +2,9 @@ import { Message } from "src/schemas/message.schema";
 import { BotAnswerExecutionResult } from "./botAnswerExecutionResult"
 
 export class TestExecutionResult {
-    botAnswerExecutions: BotAnswerExecutionResult[];
+    public botAnswerExecutions: BotAnswerExecutionResult[];
 
-    get hasErrors(): boolean {
+    public get hasErrors(): boolean {
         return !this.botAnswerExecutions.every(execution => execution.areEqual);
     }
 

@@ -35,7 +35,6 @@ export class TestContentController {
 
         let executionResult = await this.testExecutionService.executeTest(testContent, configuration);
         let result = new TestExecutionResultModel(executionResult);
-
         return result;
     }
 }

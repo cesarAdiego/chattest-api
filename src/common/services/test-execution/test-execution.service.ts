@@ -12,11 +12,11 @@ export class TestExecutionService {
     async executeTest(testContent: TestContent, configuration: ProjectConfiguration): Promise<TestExecutionResult> {
         let testResult: TestExecutionResult;
         
-        if (configuration.isCognigyConfiguration) {
+        if (configuration.cognigyConfiguration != undefined) {
             let cognigyWrapper = new CognigyWrapper(configuration.cognigyConfiguration.configUrl, testContent);
             testResult = await cognigyWrapper.executeTest();
         }
-        else if (configuration.isDialogflowConfiguration) {
+        else if (configuration.dialogFlowConfiguration != undefined) {
             let dialogflowWrapper = new DialogFlowWrapper(configuration.dialogFlowConfiguration.projectId, testContent);
             testResult = await dialogflowWrapper.executeTest();
         }
